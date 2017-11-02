@@ -49,13 +49,13 @@ class BigNumber{
 
     public String toString(){
         BigDecimal d = new BigDecimal(0);
-        d = d.add(new java.math.BigDecimal((longs[0])>>>1));
-        d = d.add(new java.math.BigDecimal((longs[0])>>>1));
-        d = d.add(new java.math.BigDecimal(longs[0]&1));
+        d = d.add(new java.math.BigDecimal((longs[0])>>>1)); //чтобы лонг впихнулся правильно (без учёта знака), переносим сначала 
+        d = d.add(new java.math.BigDecimal((longs[0])>>>1)); //первые 63 бита. (2 раза, чтобы освободить место для последнего бита) 
+        d = d.add(new java.math.BigDecimal(longs[0]&1));     //пихаем последний бит 
         for (int x=1; x<c; x++){
+            d = d.multiply(new java.math.BigDecimal(1L<<32)); //тут освобождаем нолики для следнующего лонга
             d = d.multiply(new java.math.BigDecimal(1L<<32));
-            d = d.multiply(new java.math.BigDecimal(1L<<32));
-            d = d.add(new java.math.BigDecimal((longs[x])>>>1));
+            d = d.add(new java.math.BigDecimal((longs[x])>>>1)); //повторяем то, что делали вначале, но уже для остальных лонгов
             d = d.add(new java.math.BigDecimal((longs[x])>>>1));
             d = d.add(new java.math.BigDecimal(longs[x]&1));
         }
@@ -64,14 +64,15 @@ class BigNumber{
 
     public static boolean Bigger(long l1, long l2){
         return Long.compare(l1^0x8000000000000000L, l2^0x8000000000000000L)>0;
+        //сравнение чисел (будто они беззныковые)
     }
 
     public static BigNumber Summ(BigNumber n1, BigNumber n2){
         BigNumber n = new BigNumber(n1.c, 0L);
-        n.longs[n.c-1] = (n1.longs[n.c-1] + n2.longs[n.c-1]);
-        for (int a=(n.c-1); a >0; a--){
-            n.longs[a-1] = (n1.longs[a-1] + n2.longs[a-1]);
-            if (Bigger(n1.longs[a], n.longs[a]) || Bigger(n2.longs[a], n.longs[a])) {
+        n.longs[n.c-1] = (n1.longs[n.c-1] + n2.longs[n.c-1]);    //сложим первые лонги 2х чисел, тут нет переполнения
+        for (int a=(n.c-1); a >0; a--){                          
+            n.longs[a-1] = (n1.longs[a-1] + n2.longs[a-1]);      //складываем следующие лонги
+            if (Bigger(n1.longs[a], n.longs[a]) || Bigger(n2.longs[a], n.longs[a])) { //уже с учётом переполнения
                 n.longs[a - 1]++;
             }
         }
