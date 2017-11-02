@@ -64,7 +64,7 @@ class BigNumber{
 
     public static boolean Bigger(long l1, long l2){
         return Long.compare(l1^0x8000000000000000L, l2^0x8000000000000000L)>0;
-        //сравнение чисел (будто они беззныковые)
+        //сравнение чисел (будто они беззнаковые)
     }
 
     public static BigNumber Summ(BigNumber n1, BigNumber n2){
