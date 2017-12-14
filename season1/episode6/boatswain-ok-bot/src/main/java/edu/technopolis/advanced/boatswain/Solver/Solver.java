@@ -247,6 +247,8 @@ public class Solver {
 
         }
         if (inToken) {
+            if (!checkString(curr.toString()))
+                throw new ParseExceprion("parse error");
             values.add(new NumberToken(curr.toString()));
         }
         return build(values);
