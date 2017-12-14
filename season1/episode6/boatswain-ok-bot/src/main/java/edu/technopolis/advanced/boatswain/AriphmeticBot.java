@@ -146,26 +146,29 @@ public class AriphmeticBot {
                 log.warn("Message notification does not contain chat id <{}>", notif);
                 return false;
             }
-try {
-    String res = solver.evaluate(notif.getMessage().getText()).toString();
-    SendMessageRequest req = new SendMessageRequest(sendEndpoint, notif.getRecipient().getChatId())
-            .setPayload(
-                    new SendMessagePayload(
-                            new SendRecipient(notif.getSender().getUserId()),
-                            new Message(res)
-                    )
-            );
-    try {
-        return client.post(req, SendMessageResponse.class).getMessageId() != null;
-    } catch (IOException e) {
-        log.error("Failed to send message", e);
-        return false;
-    }
-} catch (ParseExceprion e)
-{
-    log.error(e.getMessage());
-    return false;
-}
+            String ans;
+            try {
+                String res = solver.evaluate(notif.getMessage().getText()).toString();
+                ans = res;
+
+            } catch (ParseExceprion e) {
+                ans = e.getMessage();
+                log.error(e.getMessage());
+
+            }
+            SendMessageRequest req = new SendMessageRequest(sendEndpoint, notif.getRecipient().getChatId())
+                    .setPayload(
+                            new SendMessagePayload(
+                                    new SendRecipient(notif.getSender().getUserId()),
+                                    new Message(ans)
+                            )
+                    );
+            try {
+                return client.post(req, SendMessageResponse.class).getMessageId() != null;
+            } catch (IOException e) {
+                log.error("Failed to send message", e);
+                return false;
+            }
 
         }
     }
