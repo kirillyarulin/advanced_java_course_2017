@@ -22,4 +22,10 @@ public class SolverTest {
         assertEquals(1-0.1-0.1-0.1-0.1, solver.evaluate("1-0.1-0.1-0.1-0.1").doubleValue(), 0.01);
     }
 
+
+    @Test(expected = ArithmeticException.class)
+    public void evaluate3() throws Exception {
+        assertEquals(Math.sqrt( Math.log(Math.sin(0.2*2))), solver.evaluate("sqrt(log(sin(0.2*2)))").doubleValue(), 0.01);
+    }
+
 }

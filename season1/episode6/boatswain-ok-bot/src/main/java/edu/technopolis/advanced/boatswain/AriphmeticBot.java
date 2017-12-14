@@ -155,6 +155,14 @@ public class AriphmeticBot {
                 ans = e.getMessage();
                 log.error(e.getMessage());
 
+            } catch (ArithmeticException e)
+            {
+                ans = "Ariphmetic error";
+                log.error(e.getMessage());
+            } catch (Exception e)
+            {
+                ans = "parse error";
+                log.error(e.getMessage());
             }
             SendMessageRequest req = new SendMessageRequest(sendEndpoint, notif.getRecipient().getChatId())
                     .setPayload(

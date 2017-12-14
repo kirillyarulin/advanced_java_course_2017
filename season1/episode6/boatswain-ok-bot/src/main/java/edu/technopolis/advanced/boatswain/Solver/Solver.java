@@ -75,7 +75,7 @@ public class Solver {
     private boolean checkString(String str) {
         try {
             Double.parseDouble(str);
-        } catch (Exception e) {
+        } catch (NumberFormatException e) {
             return false;
         }
         return true;
@@ -130,7 +130,10 @@ public class Solver {
                    if (aQueue instanceof FunctionToken)
                    {
                        NumberToken arg = (NumberToken) stack.pop();
-                       stack.push(new NumberToken(((FunctionToken) aQueue).getFunction().apply(arg.getDoubleNum().doubleValue()).toString()));
+                       Double d = ((FunctionToken) aQueue).getFunction().apply(arg.getDoubleNum().doubleValue());
+                       if (d.isNaN())
+                           throw new ArithmeticException();
+                       stack.push(new NumberToken(d.toString()));
                    } else
                    if (aQueue instanceof TerminateToken)
                    {
@@ -139,7 +142,7 @@ public class Solver {
                        stack.push(new NumberToken(calcOper((TerminateToken)aQueue, arg2, arg1).toString()));
                    }
 
-                } catch (Exception e) {
+                } catch (NoSuchElementException e) {
                     throw new ParseExceprion("parse error");
                 }
 
@@ -147,7 +150,7 @@ public class Solver {
         }
         try {
             return ((NumberToken)stack.pop()).getDoubleNum();
-        } catch (Exception e)
+        } catch (NoSuchElementException e)
         {
             throw new ParseExceprion("parse error");
         }
@@ -218,8 +221,9 @@ public class Solver {
      * @return результат арифметичческого выражения
      * @throws ParseExceprion
      * @throws ArithmeticException
+     * @throws ClassCastException
      */
-    public BigDecimal evaluate(String str) throws ParseExceprion, ArithmeticException {
+    public BigDecimal evaluate(String str) throws ParseExceprion, ArithmeticException, ClassCastException {
         ArrayList<Token> values = new ArrayList<>();
         boolean inToken = false;
         StringBuilder curr = new StringBuilder();
