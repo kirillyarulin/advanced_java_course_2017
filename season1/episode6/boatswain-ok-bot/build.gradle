@@ -40,7 +40,7 @@ dependencies {
     //logging API
     compile 'org.slf4j:slf4j-api:1.7.25'
 
-    runtime 'org.apache.logging.log4j:log4j-slf4j-impl:2.9.1'
+    compile 'org.apache.logging.log4j:log4j-slf4j-impl:2.9.1'
 
     // Use JUnit test framework
     testCompile 'junit:junit:4.12'
@@ -64,5 +64,17 @@ group = 'edu.tecnopolis.advjava'
 version = '0.0.1'
 sourceCompatibility = 1.8
 // Define the main class for the application
-mainClassName = 'edu.technopolis.advanced.boatswain.BoatswainBot'
+mainClassName = 'edu.technopolis.advanced.boatswain.AriphmeticBot'
 
+task fatJar(type: Jar) {
+    manifest {
+        attributes 'Main-Class': 'edu.technopolis.advanced.boatswain.AriphmeticBot'
+    }
+
+    from {
+        configurations.compile.collect {
+            it.isDirectory() ? it : zipTree(it)
+        }
+    }
+    with jar
+}
