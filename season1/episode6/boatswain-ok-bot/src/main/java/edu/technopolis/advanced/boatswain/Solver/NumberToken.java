@@ -1,34 +1,16 @@
 package edu.technopolis.advanced.boatswain.Solver;
 
 import java.math.BigDecimal;
+import java.util.ArrayDeque;
 
-public class NumberToken implements Token {
-    String token;
+public class NumberToken extends Token<BigDecimal> implements CalculatingToken{
 
-    public NumberToken( String token)
-    {
-        this.token = token;
-    }
-
-
-    BigDecimal getDoubleNum()
-    {
-        try {
-            return new BigDecimal(token);
-        } catch (Exception e)
-        {
-            return null;
-        }
+    public NumberToken(BigDecimal token) {
+        super(token, Type.NUMBER);
     }
 
     @Override
-    public String getToken() {
-        return token;
-    }
-
-    @Override
-    public void setToken(String s) {
-        this.token = token;
-
+    public void calculate(ArrayDeque<Token> stack, Token currToken) throws ParseExceprion, ArithmeticException {
+        stack.push(currToken);
     }
 }

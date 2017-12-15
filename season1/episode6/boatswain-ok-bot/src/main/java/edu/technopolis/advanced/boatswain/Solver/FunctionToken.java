@@ -1,37 +1,56 @@
 package edu.technopolis.advanced.boatswain.Solver;
 
+
 import java.math.BigDecimal;
 import java.math.MathContext;
-import java.util.function.Function;
+import java.util.ArrayDeque;
+import java.util.HashMap;
 
-public class FunctionToken implements Token{
-    BigDecimalFunction<BigDecimal, BigDecimal, MathContext> function;
-    String token;
+import ch.obermuhlner.math.big.BigDecimalMath;
 
-    public FunctionToken(String token, BigDecimalFunction<BigDecimal, BigDecimal, MathContext> function)
+public class FunctionToken extends Token<BigDecimalFunction<BigDecimal, BigDecimal, MathContext>> implements CalculatingToken
+{
+
+    private static final HashMap<String, BigDecimalFunction<BigDecimal, BigDecimal, MathContext> > functionsList = new HashMap<String, BigDecimalFunction<BigDecimal, BigDecimal, MathContext>>();
+    private MathContext context;
+    static
     {
-        this.function = function;
-        this.token = token;
+        functionsList.put("sin", BigDecimalMath::sin);
+        functionsList.put("cos", BigDecimalMath::cos);
+        functionsList.put("tg", BigDecimalMath::tan);
+        functionsList.put("asin", BigDecimalMath::asin);
+        functionsList.put("acos", BigDecimalMath::acos);
+        functionsList.put("atg", BigDecimalMath::atan);
+        functionsList.put("sh", BigDecimalMath::sinh);
+        functionsList.put("cs", BigDecimalMath::cosh);
+        functionsList.put("tgh", BigDecimalMath::tanh);
+        functionsList.put("log", BigDecimalMath::log);
+        functionsList.put("sqrt", BigDecimalMath::sqrt);
     }
 
-    void setFunction( BigDecimalFunction<BigDecimal, BigDecimal, MathContext> function)
-    {
-        this.function = function;
+    FunctionToken(BigDecimalFunction<BigDecimal, BigDecimal, MathContext> token, MathContext context) {
+        super(token, Type.FUNCTION);
+        this.context = context;
     }
 
-    BigDecimalFunction<BigDecimal, BigDecimal, MathContext> getFunction(  )
+
+    static boolean isFunction(String s)
     {
-        return function;
+        return functionsList.containsKey(s);
+
+    }
+    static BigDecimalFunction<BigDecimal, BigDecimal, MathContext> getFunction(String s)
+    {
+        return functionsList.get(s);
     }
 
     @Override
-    public String getToken() {
-        return token;
+    public void calculate(ArrayDeque<Token> stack, Token currToken) throws ParseExceprion, ArithmeticException {
+        if (stack.peek().getTokenType() == Type.NUMBER)
+        {
+            stack.push(new NumberToken(getToken().apply((BigDecimal) stack.pop().getToken(), context)));
+            return;
+        }
+        throw new ParseExceprion("parse error");
     }
-
-    @Override
-    public void setToken(String s) {
-        this.token = s;
-    }
-
 }

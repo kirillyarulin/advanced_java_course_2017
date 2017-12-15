@@ -5,6 +5,10 @@ package edu.technopolis.advanced.boatswain.Solver;
  */
 public class ParseExceprion extends Exception {
 
+    ParseExceprion()
+    {
+        super("parse error");
+    }
 
     ParseExceprion(String message) {
         super(message);

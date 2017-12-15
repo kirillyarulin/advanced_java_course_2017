@@ -62,7 +62,7 @@ class ApiClient implements Closeable {
     }
 
     <RESP> RESP method(Class<RESP> clazz, HttpUriRequest method) throws IOException {
-        try (CloseableHttpResponse response = client.execute(method)){
+        try (CloseableHttpResponse response = client.execute(method)) {
             StringBuilder sb = new StringBuilder();
             try (BufferedReader reader = new BufferedReader(new InputStreamReader(response.getEntity().getContent()))) {
                 String line;

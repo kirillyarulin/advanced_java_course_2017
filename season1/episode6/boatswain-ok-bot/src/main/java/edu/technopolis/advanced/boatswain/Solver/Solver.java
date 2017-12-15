@@ -4,72 +4,23 @@ import java.math.BigDecimal;
 import java.math.MathContext;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
-import java.util.Deque;
-import java.util.HashMap;
-import java.util.NoSuchElementException;
-import java.util.function.Function;
 
-import ch.obermuhlner.math.big.BigDecimalMath;
 
 /**
  * Класс парсит и считает выражение
  */
 public class Solver {
-    private static final char LEFT_PAREN = '(';
-    private static final char RIGHT_PAREN = ')';
-    private static final char PLUS = '+';
-    private static final char MINUS = '-';
-    private static final char TIMES = '*';
-    private static final char DIVISION = '/';
-    private static final HashMap<String, BigDecimalFunction<BigDecimal, BigDecimal, MathContext> > functionsList = new HashMap<String, BigDecimalFunction<BigDecimal, BigDecimal, MathContext>>();
 
-    MathContext context = new MathContext(15);
-   public Solver()
-   {
-       functionsList.put("sin", BigDecimalMath::sin);
-       functionsList.put("cos", BigDecimalMath::cos);
-       functionsList.put("tg", BigDecimalMath::tan);
-       functionsList.put("asin", BigDecimalMath::asin);
-       functionsList.put("acos", BigDecimalMath::acos);
-       functionsList.put("atg", BigDecimalMath::atan);
-       functionsList.put("sh", BigDecimalMath::sinh);
-       functionsList.put("cs", BigDecimalMath::cosh);
-       functionsList.put("tgh", BigDecimalMath::tanh);
-       functionsList.put("log", BigDecimalMath::log);
-       functionsList.put("sqrt", BigDecimalMath::sqrt);
+    MathContext context = new MathContext(20);
 
-   }
+    public Solver() {
 
-
-    /**
-     * Проверяет, является ли с оператором
-     * @param c
-     * @return true если c оператор, false в противном случае
-     */
-    private boolean isOperat(Token c) {
-        return c instanceof TerminateToken && !checkString(c.getToken()) && (c.getToken().charAt(0) == PLUS || c.getToken().charAt(0) == MINUS || c.getToken().charAt(0) == DIVISION || c.getToken().charAt(0) == TIMES);
     }
 
-    /**
-     * Проверяет, является ли c оператором или скобками
-     * @param c
-     * @return true если c оператор или скобка, false в противном случае
-     */
-    private boolean isOperatOrParen(char c) {
-        return (c == PLUS || c == MINUS || c == DIVISION || c == TIMES || c == LEFT_PAREN || c == RIGHT_PAREN);
-    }
-
-    /**
-     * Проверяет, является ли ch цифрой
-     * @param ch
-     * @return true если ch цифра, false в противном случае
-     */
-    private boolean isNumber(char ch) {
-        return ch >= '0' && ch <= '9';
-    }
 
     /**
      * Проверяет, можно ли  преобразовать str в число типа double
+     *
      * @param str
      * @return true если можно преобразовать, false иначе
      */
@@ -84,146 +35,70 @@ public class Solver {
 
     /**
      * Метод вычисляет значение переданного арифметического выражения, испольуя алгорим Дейкстры (Сортировочная станция)
+     *
      * @param s Выражение, которое нужно вычислить. Каждый элемент s содержит отдельный токен выражения (число, знак арифметической операции или скобку)
      * @return
      * @throws ParseExceprion
      * @throws ArithmeticException
      */
-    private BigDecimal build(ArrayList<Token> s) throws ParseExceprion, ArithmeticException, ClassCastException {
+    private BigDecimal build(ArrayList<Token> s) throws ParseExceprion, ArithmeticException {
         ArrayList<Token> queue = new ArrayList<>();
-        Deque<Token> stack = new ArrayDeque<>();
+        ArrayDeque<Token> stack = new ArrayDeque<>();
         for (Token value : s) {
-            if (value instanceof FunctionToken)
+            if (value.getTokenType() == Token.Type.FUNCTION) {
                 stack.push(value);
-            if (checkString(value.getToken())) {
+            } else if (value.getTokenType() == Token.Type.NUMBER) {
                 queue.add(value);
-            } else if (isOperat(value)) {
-                while (!stack.isEmpty() && isOperat(stack.peek()) && (prior((TerminateToken)stack.peek()) >= prior((TerminateToken)value))) {
+            } else if (value.getTokenType() == Token.Type.OPERATION) {
+                while (!stack.isEmpty() && stack.peek().getTokenType() == Token.Type.OPERATION &&
+                        ((((OperationToken) stack.peek()).prior()) >= (((OperationToken) value).prior()))) {
                     queue.add(stack.pop());
                 }
                 stack.push(value);
-            } else if (value.getToken().charAt(0) == LEFT_PAREN) {
-                stack.push(new TerminateToken(LEFT_PAREN + ""));
-            } else if (value.getToken().charAt(0) == RIGHT_PAREN) {
-                while (!stack.isEmpty() && !stack.peek().getToken().equals(""+LEFT_PAREN)) {
+            } else if (value.getTokenType() == Token.Type.LEFT_PAREN) {
+                stack.push(new LeftParenToken());
+            } else if (value.getTokenType() == Token.Type.RIGHT_PAREN) {
+                while (!stack.isEmpty() && (stack.peek().getTokenType() != Token.Type.LEFT_PAREN)) {
                     queue.add(stack.pop());
                 }
                 if (stack.isEmpty()) {
                     throw new ParseExceprion("parse error");
                 }
                 stack.pop();
-                if (!stack.isEmpty() && stack.peek() instanceof FunctionToken) {
+                if (!stack.isEmpty() && stack.peek().getTokenType() == Token.Type.FUNCTION) {
                     queue.add(stack.pop());
-
                 }
             }
-
         }
         while (!stack.isEmpty()) {
             queue.add(stack.pop());
         }
         stack.clear();
-        for (Token aQueue : queue) {
-            if (aQueue instanceof NumberToken) {
-                stack.push(aQueue);
-            } else {
-                try {
-                   if (aQueue instanceof FunctionToken)
-                   {
-                       NumberToken arg = (NumberToken) stack.pop();
-                       BigDecimal d = ((FunctionToken) aQueue).getFunction().apply(arg.getDoubleNum(),context);
-                       stack.push(new NumberToken(d.toString()));
-                   } else
-                   if (aQueue instanceof TerminateToken)
-                   {
-                       NumberToken arg1 = (NumberToken) stack.pop();
-                       NumberToken arg2 = (NumberToken) stack.pop();
-                       stack.push(new NumberToken(calcOper((TerminateToken)aQueue, arg2, arg1).toString()));
-                   }
-
-                } catch (NoSuchElementException e) {
-                    throw new ParseExceprion("parse error");
-                }
-
-            }
-        }
         try {
-            return ((NumberToken)stack.pop()).getDoubleNum();
-        } catch (NoSuchElementException e)
-        {
+            for (Token aQueue : queue) {
+                ((CalculatingToken) aQueue).calculate(stack, aQueue);
+            }
+        } catch (ClassCastException e) {
+            throw new ParseExceprion();
+        }
+        if (stack.peek().getTokenType() != Token.Type.NUMBER) {
             throw new ParseExceprion("parse error");
+        } else {
+            return ((NumberToken) stack.peek()).getToken();
         }
 
-    }
-
-    /**
-     * Возвращает приоритет переданной операции
-     * @param s
-     * @return
-     */
-    private int prior(TerminateToken s) {
-        switch (s.getToken().charAt(0)) {
-        case PLUS:
-        case MINUS:
-            return 1;
-        case TIMES:
-        case DIVISION:
-            return 2;
-        default:
-            return 0;
-        }
-    }
-
-    /**
-     * возвращает результат операции c значений l и r
-     * @param c операция
-     * @param l левый операнд
-     * @param r правый операнд
-     * @return результат операции
-     * @throws ArithmeticException
-     */
-    private BigDecimal calcOper(TerminateToken c, NumberToken l, NumberToken r)
-            throws ArithmeticException, ParseExceprion {
-        switch (c.getToken().charAt(0)) {
-        case PLUS:
-            return l.getDoubleNum().add(r.getDoubleNum(),context);
-        case MINUS:
-            return l.getDoubleNum().subtract( r.getDoubleNum(), context);
-        case TIMES:
-            return l.getDoubleNum().multiply(r.getDoubleNum(), context);
-        case DIVISION:
-            return l.getDoubleNum().divide(r.getDoubleNum(), 10, BigDecimal.ROUND_HALF_UP);
-        default:
-            throw new ParseExceprion("parse error");
-        }
-    }
-    
-    
-
-
-    boolean isFunction(String s)
-    {
-        return functionsList.containsKey(s);
-
-    }
-
-
-
-    BigDecimalFunction<BigDecimal, BigDecimal, MathContext> getFunction (String s)
-    {
-        return functionsList.get(s);
     }
 
 
     /**
      * Вычисляет значение арифметического выражения
+     *
      * @param str арифметическое выражение
      * @return результат арифметичческого выражения
      * @throws ParseExceprion
      * @throws ArithmeticException
-     * @throws ClassCastException
      */
-    public BigDecimal evaluate(String str) throws ParseExceprion, ArithmeticException, ClassCastException {
+    public BigDecimal evaluate(String str) throws ParseExceprion, ArithmeticException {
         ArrayList<Token> values = new ArrayList<>();
         boolean inToken = false;
         StringBuilder curr = new StringBuilder();
@@ -232,18 +107,28 @@ public class Solver {
             if (c == ' ') {
                 continue;
             }
-            if (isOperatOrParen(c)) {
+            if (OperationToken.isOperator(c) || RightParenToken.isRightParen(c) || LeftParenToken.isLeftParen(c)) {
                 if (inToken) {
-                    if (!checkString(curr.toString()) && !isFunction(curr.toString()))
+                    if (!checkString(curr.toString()) && !FunctionToken.isFunction(curr.toString())) {
                         throw new ParseExceprion("parse error");
-                    if (checkString(curr.toString()))
-                        values.add(new NumberToken(curr.toString()));
-                    else
-                        values.add(new FunctionToken(curr.toString(), getFunction(curr.toString())));
+                    }
+                    if (checkString(curr.toString())) {
+                        values.add(new NumberToken(new BigDecimal(curr.toString())));
+                    } else {
+                        values.add(new FunctionToken(FunctionToken.getFunction(curr.toString()), context));
+                    }
                     inToken = false;
                     curr.setLength(0);
                 }
-                values.add(new TerminateToken("" + c));
+                if (OperationToken.isOperator(c)) {
+                    values.add(new OperationToken(c, context));
+                }
+                if (LeftParenToken.isLeftParen(c)) {
+                    values.add(new LeftParenToken());
+                }
+                if (RightParenToken.isRightParen(c)) {
+                    values.add(new RightParenToken());
+                }
             } else {
                 inToken = true;
                 curr.append(c);
@@ -251,9 +136,10 @@ public class Solver {
 
         }
         if (inToken) {
-            if (!checkString(curr.toString()))
+            if (!checkString(curr.toString())) {
                 throw new ParseExceprion("parse error");
-            values.add(new NumberToken(curr.toString()));
+            }
+            values.add(new NumberToken(new BigDecimal(curr.toString())));
         }
         return build(values);
     }

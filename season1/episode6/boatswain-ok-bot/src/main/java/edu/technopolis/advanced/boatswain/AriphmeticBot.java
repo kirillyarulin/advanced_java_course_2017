@@ -127,15 +127,11 @@ public class AriphmeticBot {
     private static class MessageSender {
 
         private final ApiClient client;
-        private final String phrase;
-        private final String joke;
         private final String sendEndpoint;
         Solver solver = new Solver();
 
         MessageSender(ApiClient okClient, Properties props) {
             this.client = okClient;
-            this.phrase = props.getProperty("bot.phrase");
-            this.joke = props.getProperty("bot.joke");
             this.sendEndpoint = props.getProperty("ok.api.endpoint.send");
         }
 
@@ -151,21 +147,15 @@ public class AriphmeticBot {
             String ans;
             try {
                 BigDecimal result = solver.evaluate(notif.getMessage().getText());
-                if (BigDecimalMath.isIntValue(result))
+                if (BigDecimalMath.isIntValue(result)) {
                     ans = BigDecimalMath.integralPart(result).toString();
-               else
-                   ans = result.toString();
-
-            } catch (ParseExceprion e) {
-                ans = e.getMessage();
-                log.error(e.getMessage());
-
-            } catch (ArithmeticException e)
-            {
+                } else {
+                    ans = result.toString();
+                }
+            } catch (ArithmeticException e) {
                 ans = "Ariphmetic error";
                 log.error(e.getMessage());
-            } catch (Exception e)
-            {
+            } catch (Exception e) {
                 ans = "parse error";
                 log.error(e.getMessage());
             }
