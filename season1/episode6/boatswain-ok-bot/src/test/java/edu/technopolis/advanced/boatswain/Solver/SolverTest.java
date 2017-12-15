@@ -1,6 +1,11 @@
 package edu.technopolis.advanced.boatswain.Solver;
 
+import java.math.BigDecimal;
+import java.math.MathContext;
+
 import org.junit.Test;
+
+import ch.obermuhlner.math.big.BigDecimalMath;
 
 import static org.junit.Assert.*;
 
@@ -28,4 +33,13 @@ public class SolverTest {
         assertEquals(Math.sqrt( Math.log(Math.sin(0.2*2))), solver.evaluate("sqrt(log(sin(0.2*2)))").doubleValue(), 0.01);
     }
 
+    @Test
+    public void evaluate4() throws Exception {
+        assertEquals( 1.0, solver.evaluate("sin(111)*sin(111)+cos(111)*cos(111)").doubleValue(), 0.00001);
+    }
+
+    @Test
+    public void evaluate5() throws Exception {
+        assertEquals( 1.0, solver.evaluate("sin(111)*sin(111)+cos(111)*cos(111)").doubleValue(), 0);
+    }
 }

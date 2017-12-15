@@ -1,12 +1,14 @@
 package edu.technopolis.advanced.boatswain;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.Objects;
 import java.util.Properties;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ch.obermuhlner.math.big.BigDecimalMath;
 import edu.technopolis.advanced.boatswain.Solver.ParseExceprion;
 import edu.technopolis.advanced.boatswain.Solver.Solver;
 import edu.technopolis.advanced.boatswain.incoming.request.Message;
@@ -148,8 +150,11 @@ public class AriphmeticBot {
             }
             String ans;
             try {
-                String res = solver.evaluate(notif.getMessage().getText()).toString();
-                ans = res;
+                BigDecimal result = solver.evaluate(notif.getMessage().getText());
+                if (BigDecimalMath.isIntValue(result))
+                    ans = BigDecimalMath.integralPart(result).toString();
+               else
+                   ans = result.toString();
 
             } catch (ParseExceprion e) {
                 ans = e.getMessage();

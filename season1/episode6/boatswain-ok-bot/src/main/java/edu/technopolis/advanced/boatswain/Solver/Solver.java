@@ -1,12 +1,15 @@
 package edu.technopolis.advanced.boatswain.Solver;
 
 import java.math.BigDecimal;
+import java.math.MathContext;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
 import java.util.HashMap;
 import java.util.NoSuchElementException;
 import java.util.function.Function;
+
+import ch.obermuhlner.math.big.BigDecimalMath;
 
 /**
  * Класс парсит и считает выражение
@@ -18,24 +21,22 @@ public class Solver {
     private static final char MINUS = '-';
     private static final char TIMES = '*';
     private static final char DIVISION = '/';
-    private static final HashMap<String, Function<Double, Double> > functionsList = new HashMap<String, Function<Double, Double> >();
+    private static final HashMap<String, BigDecimalFunction<BigDecimal, BigDecimal, MathContext> > functionsList = new HashMap<String, BigDecimalFunction<BigDecimal, BigDecimal, MathContext>>();
 
+    MathContext context = new MathContext(15);
    public Solver()
    {
-       functionsList.put("sin", Math::sin);
-       functionsList.put("cos", Math::cos);
-       functionsList.put("tg", Math::tan);
-       functionsList.put("ctg", ExMath::ctg);
-       functionsList.put("asin", Math::asin);
-       functionsList.put("acos", Math::acos);
-       functionsList.put("atg", Math::atan);
-       functionsList.put("sec", ExMath::sec);
-       functionsList.put("cosec", ExMath::cosec);
-       functionsList.put("sh", Math::sinh);
-       functionsList.put("cs", Math::cosh);
-       functionsList.put("tgh", Math::tanh);
-       functionsList.put("log", Math::log);
-       functionsList.put("sqrt", Math::sqrt);
+       functionsList.put("sin", BigDecimalMath::sin);
+       functionsList.put("cos", BigDecimalMath::cos);
+       functionsList.put("tg", BigDecimalMath::tan);
+       functionsList.put("asin", BigDecimalMath::asin);
+       functionsList.put("acos", BigDecimalMath::acos);
+       functionsList.put("atg", BigDecimalMath::atan);
+       functionsList.put("sh", BigDecimalMath::sinh);
+       functionsList.put("cs", BigDecimalMath::cosh);
+       functionsList.put("tgh", BigDecimalMath::tanh);
+       functionsList.put("log", BigDecimalMath::log);
+       functionsList.put("sqrt", BigDecimalMath::sqrt);
 
    }
 
@@ -130,9 +131,7 @@ public class Solver {
                    if (aQueue instanceof FunctionToken)
                    {
                        NumberToken arg = (NumberToken) stack.pop();
-                       Double d = ((FunctionToken) aQueue).getFunction().apply(arg.getDoubleNum().doubleValue());
-                       if (d.isNaN())
-                           throw new ArithmeticException();
+                       BigDecimal d = ((FunctionToken) aQueue).getFunction().apply(arg.getDoubleNum(),context);
                        stack.push(new NumberToken(d.toString()));
                    } else
                    if (aQueue instanceof TerminateToken)
@@ -183,18 +182,19 @@ public class Solver {
      * @return результат операции
      * @throws ArithmeticException
      */
-    private BigDecimal calcOper(TerminateToken c, NumberToken l, NumberToken r) throws ArithmeticException {
+    private BigDecimal calcOper(TerminateToken c, NumberToken l, NumberToken r)
+            throws ArithmeticException, ParseExceprion {
         switch (c.getToken().charAt(0)) {
         case PLUS:
-            return l.getDoubleNum().add(r.getDoubleNum());
+            return l.getDoubleNum().add(r.getDoubleNum(),context);
         case MINUS:
-            return l.getDoubleNum().subtract( r.getDoubleNum());
+            return l.getDoubleNum().subtract( r.getDoubleNum(), context);
         case TIMES:
-            return l.getDoubleNum().multiply(r.getDoubleNum());
+            return l.getDoubleNum().multiply(r.getDoubleNum(), context);
         case DIVISION:
             return l.getDoubleNum().divide(r.getDoubleNum(), 10, BigDecimal.ROUND_HALF_UP);
         default:
-            return null;
+            throw new ParseExceprion("parse error");
         }
     }
     
@@ -209,7 +209,7 @@ public class Solver {
 
 
 
-    Function<Double, Double> getFunction (String s)
+    BigDecimalFunction<BigDecimal, BigDecimal, MathContext> getFunction (String s)
     {
         return functionsList.get(s);
     }

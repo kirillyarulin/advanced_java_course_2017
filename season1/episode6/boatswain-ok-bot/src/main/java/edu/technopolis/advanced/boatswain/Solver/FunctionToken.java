@@ -1,23 +1,25 @@
 package edu.technopolis.advanced.boatswain.Solver;
 
+import java.math.BigDecimal;
+import java.math.MathContext;
 import java.util.function.Function;
 
 public class FunctionToken implements Token{
-    Function<Double, Double> function;
+    BigDecimalFunction<BigDecimal, BigDecimal, MathContext> function;
     String token;
 
-    public FunctionToken(String token, Function<Double, Double> function)
+    public FunctionToken(String token, BigDecimalFunction<BigDecimal, BigDecimal, MathContext> function)
     {
         this.function = function;
         this.token = token;
     }
 
-    void setFunction( Function<Double, Double> function)
+    void setFunction( BigDecimalFunction<BigDecimal, BigDecimal, MathContext> function)
     {
         this.function = function;
     }
 
-    Function<Double, Double> getFunction(  )
+    BigDecimalFunction<BigDecimal, BigDecimal, MathContext> getFunction(  )
     {
         return function;
     }

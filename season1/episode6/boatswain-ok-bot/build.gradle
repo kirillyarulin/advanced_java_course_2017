@@ -42,6 +42,8 @@ dependencies {
 
     compile 'org.apache.logging.log4j:log4j-slf4j-impl:2.9.1'
 
+    compile 'ch.obermuhlner:big-math:1.2.1'
+
     // Use JUnit test framework
     testCompile 'junit:junit:4.12'
 }
