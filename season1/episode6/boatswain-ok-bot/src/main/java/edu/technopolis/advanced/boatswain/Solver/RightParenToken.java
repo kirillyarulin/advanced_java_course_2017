@@ -4,7 +4,7 @@ public class RightParenToken extends Token<Character> {
     private static final char RIGHT_PAREN = ')';
 
     public static boolean isRightParen(char c) {
-        return c==RIGHT_PAREN;
+        return c == RIGHT_PAREN;
     }
 
     public RightParenToken() {

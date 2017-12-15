@@ -8,13 +8,12 @@ import java.util.HashMap;
 
 import ch.obermuhlner.math.big.BigDecimalMath;
 
-public class FunctionToken extends Token<BigDecimalFunction<BigDecimal, BigDecimal, MathContext>> implements CalculatingToken
-{
+public class FunctionToken extends Token<BigDecimalFunction<BigDecimal, BigDecimal, MathContext>> implements CalculatingToken {
 
-    private static final HashMap<String, BigDecimalFunction<BigDecimal, BigDecimal, MathContext> > functionsList = new HashMap<String, BigDecimalFunction<BigDecimal, BigDecimal, MathContext>>();
+    private static final HashMap<String, BigDecimalFunction<BigDecimal, BigDecimal, MathContext>> functionsList = new HashMap<String, BigDecimalFunction<BigDecimal, BigDecimal, MathContext>>();
     private MathContext context;
-    static
-    {
+
+    static {
         functionsList.put("sin", BigDecimalMath::sin);
         functionsList.put("cos", BigDecimalMath::cos);
         functionsList.put("tg", BigDecimalMath::tan);
@@ -34,20 +33,18 @@ public class FunctionToken extends Token<BigDecimalFunction<BigDecimal, BigDecim
     }
 
 
-    static boolean isFunction(String s)
-    {
+    static boolean isFunction(String s) {
         return functionsList.containsKey(s);
 
     }
-    static BigDecimalFunction<BigDecimal, BigDecimal, MathContext> getFunction(String s)
-    {
+
+    static BigDecimalFunction<BigDecimal, BigDecimal, MathContext> getFunction(String s) {
         return functionsList.get(s);
     }
 
     @Override
     public void calculate(ArrayDeque<Token> stack, Token currToken) throws ParseExceprion, ArithmeticException {
-        if (stack.peek().getTokenType() == Type.NUMBER)
-        {
+        if (stack.peek().getTokenType() == Type.NUMBER) {
             stack.push(new NumberToken(getToken().apply((BigDecimal) stack.pop().getToken(), context)));
             return;
         }

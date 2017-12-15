@@ -1,13 +1,15 @@
 package edu.technopolis.advanced.boatswain.Solver;
 
-public class Token<T>{
-    enum Type  {
+public class Token<T> {
+    enum Type {
         OPERATION,
         LEFT_PAREN,
         RIGHT_PAREN,
         NUMBER,
         FUNCTION
-    };
+    }
+
+    ;
     T token;
     Type tokenType;
 
