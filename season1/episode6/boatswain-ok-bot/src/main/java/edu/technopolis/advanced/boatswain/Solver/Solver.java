@@ -62,7 +62,7 @@ public class Solver {
                     queue.add(stack.pop());
                 }
                 if (stack.isEmpty()) {
-                    throw new ParseExceprion("parse error");
+                    throw new ParseExceprion();
                 }
                 stack.pop();
                 if (!stack.isEmpty() && stack.peek().getTokenType() == Token.Type.FUNCTION) {
@@ -82,7 +82,7 @@ public class Solver {
             throw new ParseExceprion();
         }
         if (stack.peek().getTokenType() != Token.Type.NUMBER) {
-            throw new ParseExceprion("parse error");
+            throw new ParseExceprion();
         } else {
             return ((NumberToken) stack.peek()).getToken();
         }
@@ -110,7 +110,7 @@ public class Solver {
             if (OperationToken.isOperator(c) || RightParenToken.isRightParen(c) || LeftParenToken.isLeftParen(c)) {
                 if (inToken) {
                     if (!checkString(curr.toString()) && !FunctionToken.isFunction(curr.toString())) {
-                        throw new ParseExceprion("parse error");
+                        throw new ParseExceprion();
                     }
                     if (checkString(curr.toString())) {
                         values.add(new NumberToken(new BigDecimal(curr.toString())));
@@ -137,7 +137,7 @@ public class Solver {
         }
         if (inToken) {
             if (!checkString(curr.toString())) {
-                throw new ParseExceprion("parse error");
+                throw new ParseExceprion();
             }
             values.add(new NumberToken(new BigDecimal(curr.toString())));
         }
