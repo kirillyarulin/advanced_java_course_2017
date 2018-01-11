@@ -5,12 +5,12 @@ package edu.technopolis;
  * Содержит только метод main и ничего кроме. Никакой дполнительной нагрузки не несёт.
  * Является интерфейсом для
  * <ul>
- *     <li>Демонстрации возможности метода main в интрефейсе</li>
- *     <li>Экономии слова public</li>
+ * <li>Демонстрации возможности метода main в интрефейсе</li>
+ * <li>Экономии слова public</li>
  * </ul>
  */
 public interface EntryPoint {
-    static void main(String... args) {
+    static void main(String... args) throws Exception {
         FibonacciAlgorithm algorithm = new DummyFibonacciAlgorithm();
         System.out.println(algorithm.evaluate(Integer.parseInt(args[0])));
     }
