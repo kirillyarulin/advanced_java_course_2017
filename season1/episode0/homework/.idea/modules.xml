@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+<<<<<<< HEAD
+      <module fileurl="file://$PROJECT_DIR$/episode0.iml" filepath="$PROJECT_DIR$/episode0.iml" />
+=======
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/OKSandbox.iml" filepath="$PROJECT_DIR$/.idea/modules/OKSandbox.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/OKSandbox_main.iml" filepath="$PROJECT_DIR$/.idea/modules/OKSandbox_main.iml" group="OKSandbox" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/OKSandbox_test.iml" filepath="$PROJECT_DIR$/.idea/modules/OKSandbox_test.iml" group="OKSandbox" />
+>>>>>>> 071d417c5bbf9c110aad15a96eddb6498880694d
+    </modules>
+  </component>
+</project>
